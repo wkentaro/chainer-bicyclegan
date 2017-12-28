@@ -1,0 +1,3 @@
+[submodule "src/pytorch-bicyclegan"]
+	path = src/pytorch-bicyclegan
+	url = https://github.com/junyanz/BicycleGAN.git
