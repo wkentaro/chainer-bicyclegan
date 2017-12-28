@@ -9,4 +9,4 @@
 ./infer_pytorch.py --gpu 0
 ```
 
-![](.readme/infer_pytorch.jpg)
+<img src=".readme/infer_pytorch.jpg" width="48%" />
