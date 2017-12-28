@@ -79,7 +79,7 @@ if torch.cuda.is_available():
 img = skimage.io.imread(img_file)
 H, W = img.shape[:2]
 real_A = img[:, :W // 2, :]
-real_A = real_A[:, :, 0][:, :, None]  # edges
+real_A = real_A[:, :, 0:1]   # edges
 real_B = img[:, W // 2:, :]  # shoes
 
 xi_A = real_A.astype(np.float32) / 255. * 2 - 1
@@ -112,9 +112,8 @@ for i in range(1 + n_samples):
     else:
         z = torch.from_numpy(z_samples[i - 1][None]).cuda()
         z = torch.autograd.Variable(z, volatile=True)
-    # print(z)
 
-    y = G(x_A.clone(), z.clone())
+    y = G(x_A, z)
 
     fake_B = y.data.cpu().numpy()[0].transpose(1, 2, 0)
     fake_B = ((fake_B + 1) / 2. * 255.).astype(np.uint8)
