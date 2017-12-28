@@ -7,8 +7,8 @@ import sys
 
 import fcn
 import numpy as np
-import torch
 import skimage.io
+import torch
 
 torch.backends.cudnn.benchmark = True
 
@@ -29,7 +29,7 @@ parser = argparse.ArgumentParser(
 parser.add_argument('-g', '--gpu', type=int, default=0, help='GPU id')
 args = parser.parse_args()
 
-img_file = '/home/wkentaro/chainer-bicyclegan/src/pytorch-bicyclegan/datasets/edges2shoes/val/100_AB.jpg'
+img_file = '/home/wkentaro/chainer-bicyclegan/src/pytorch-bicyclegan/datasets/edges2shoes/val/100_AB.jpg'  # NOQA
 G_model_file = osp.join(here, 'data/edges2shoes_net_G.pth')
 E_model_file = osp.join(here, 'data/edges2shoes_net_E.pth')
 
@@ -78,9 +78,9 @@ if torch.cuda.is_available():
 
 img = skimage.io.imread(img_file)
 H, W = img.shape[:2]
-real_A = img[:, :W//2, :]
+real_A = img[:, :W // 2, :]
 real_A = real_A[:, :, 0][:, :, None]  # edges
-real_B = img[:, W//2:, :]  # shoes
+real_B = img[:, W // 2:, :]  # shoes
 
 xi_A = real_A.astype(np.float32) / 255. * 2 - 1
 x_A = xi_A.transpose(2, 0, 1)[None]
@@ -104,7 +104,6 @@ for i in range(1 + n_samples):
             std = logvar.mul(0.5).exp_()
             batchsize = std.size(0)
             nz = std.size(1)
-            random_type = 'gauss'
             eps = torch.autograd.Variable(torch.randn(batchsize, nz)).cuda()
             return eps.mul(std).add_(mu)
 
