@@ -30,8 +30,8 @@ parser.add_argument('-g', '--gpu', type=int, default=0, help='GPU id')
 args = parser.parse_args()
 
 img_file = '/home/wkentaro/chainer-bicyclegan/src/pytorch-bicyclegan/datasets/edges2shoes/val/100_AB.jpg'
-G_model_file = osp.join(pytorch_dir, 'pretrained_models/edges2shoes_net_G.pth')
-E_model_file = osp.join(pytorch_dir, 'pretrained_models/edges2shoes_net_E.pth')
+G_model_file = osp.join(here, 'data/edges2shoes_net_G.pth')
+E_model_file = osp.join(here, 'data/edges2shoes_net_E.pth')
 
 gpu = args.gpu
 nz = 8
