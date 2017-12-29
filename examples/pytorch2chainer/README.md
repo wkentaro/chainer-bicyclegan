@@ -5,7 +5,10 @@
 
 ```bash
 ./download_models.sh
-# ./pytorch2chainer_EG.py  # to convert .pth -> .npz
+
+# to convert .pth -> .npz
+# ./pytorch2chainer_E.py
+# ./pytorch2chainer_G.py
 
 ./infer_pytorch.py --gpu 0
 ./infer_chainer.py --gpu 0
