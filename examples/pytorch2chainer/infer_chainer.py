@@ -5,6 +5,7 @@ import os.path as osp
 
 import chainer
 from chainer import cuda
+import chainer.functions as F
 import cv2
 import fcn
 import numpy as np
@@ -24,7 +25,7 @@ args = parser.parse_args()
 here = osp.dirname(osp.abspath(__file__))
 img_file = osp.join(here, 'data/edges2shoes_val_100_AB.jpg')
 G_model_file = osp.join(here, 'data/edges2shoes_net_G_from_chainer.npz')
-# E_model_file = osp.join(here, 'data/edges2shoes_net_E.pth')
+E_model_file = osp.join(here, 'data/edges2shoes_net_E_from_chainer.npz')
 
 gpu = args.gpu
 nz = 8
@@ -32,7 +33,7 @@ output_nc = 3
 
 print('GPU id: %d' % args.gpu)
 print('G model: %s' % G_model_file)
-# print('E model: %s' % E_model_file)
+print('E model: %s' % E_model_file)
 print('Input file: %s' % img_file)
 
 assert gpu >= 0
@@ -52,20 +53,17 @@ G = lib.models.G_Unet_add_all(
 chainer.serializers.load_npz(G_model_file, G)
 G.to_gpu()
 
-# E = E_ResNet(
-#     input_nc=output_nc,
-#     output_nc=nz,
-#     ndf=64,
-#     n_blocks=5,
-#     norm_layer=get_norm_layer('instance'),
-#     nl_layer=get_non_linearity('lrelu'),
-#     gpu_ids=[gpu],
-#     vaeLike=True,
-# )
-# E.load_state_dict(torch.load(E_model_file))
-# E.eval()
-# if torch.cuda.is_available():
-#     E.cuda()
+E = lib.models.E_ResNet(
+    input_nc=output_nc,
+    output_nc=nz,
+    ndf=64,
+    n_blocks=5,
+    norm_layer='instance',
+    nl_layer='lrelu',
+    vaeLike=True,
+)
+chainer.serializers.load_npz(E_model_file, E)
+E.to_gpu()
 
 img = skimage.io.imread(img_file)
 H, W = img.shape[:2]
@@ -91,19 +89,16 @@ real_A = np.repeat(real_A, 3, axis=2)
 viz = [real_A, real_B]
 for i in range(1 + n_samples):
     if i == 0:
-        # TODO(wkentaro)
-        # ---------------------------------------------------------------------
-        # def get_z(mu, logvar):
-        #     std = logvar.mul(0.5).exp_()
-        #     batchsize = std.size(0)
-        #     nz = std.size(1)
-        #     eps = torch.autograd.Variable(torch.randn(batchsize, nz)).cuda()
-        #     return eps.mul(std).add_(mu)
-        #
-        # mu, logvar = E.forward(x_B)
-        # z = get_z(mu, logvar)
-        # ---------------------------------------------------------------------
-        continue
+        def get_z(mu, logvar):
+            std = F.exp(logvar * 0.5)
+            batchsize = std.shape[0]
+            nz = std.shape[1]
+            eps = np.random.normal(0, 1, (batchsize, nz)).astype(np.float32)
+            eps = chainer.Variable(cuda.to_gpu(eps))
+            return eps * std + mu
+
+        mu, logvar = E(x_B)
+        z = get_z(mu, logvar)
     else:
         z = cuda.to_gpu(z_samples[i - 1][None])
         z = chainer.Variable(z)

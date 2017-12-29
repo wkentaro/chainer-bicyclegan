@@ -148,3 +148,81 @@ class UnetBlock_with_z(chainer.Chain):
             x1 = self.down(x_and_z)
             x2 = self.submodule(x1, z)
             return F.concat([self.up(x2), x], axis=1)
+
+
+# -----------------------------------------------------------------------------
+
+
+class BasicBlock(chainer.Chain):
+    def __init__(self, inplanes, outplanes, norm_layer=None, nl_layer=None):
+        super(BasicBlock, self).__init__()
+        assert norm_layer == 'instance'
+        norm_layer = lambda size: InstanceNormalization(
+            size, decay=0.9, eps=1e-05, use_beta=False, use_gamma=False)
+        assert nl_layer == 'lrelu'
+        nl_layer_func = F.leaky_relu
+
+        layers = []
+        if norm_layer is not None:
+            layers += [norm_layer(inplanes)]
+        layers += [nl_layer_func]
+        layers += [
+            L.Convolution2D(inplanes, inplanes, ksize=3, stride=1, pad=1)]
+        if norm_layer is not None:
+            layers += [norm_layer(inplanes)]
+        layers += [nl_layer_func]
+        layers += [Sequential(
+            L.Convolution2D(inplanes, outplanes, ksize=3, stride=1, pad=1),
+            lambda x: F.average_pooling_2d(x, ksize=2, stride=2),
+        )]
+        with self.init_scope():
+            self.conv = Sequential(*layers)
+            self.shortcut = Sequential(
+                lambda x: F.average_pooling_2d(x, ksize=2, stride=2),
+                L.Convolution2D(inplanes, outplanes, ksize=1, stride=1, pad=0),
+            )
+
+    def __call__(self, x):
+        out = self.conv(x) + self.shortcut(x)
+        return out
+
+
+class E_ResNet(chainer.Chain):
+
+    def __init__(self, input_nc=3, output_nc=1, ndf=64, n_blocks=4,
+                 norm_layer=None, nl_layer=None, gpu_ids=[], vaeLike=False):
+        super(E_ResNet, self).__init__()
+
+        assert nl_layer == 'lrelu'
+        nl_layer_func = F.leaky_relu
+
+        self.vaeLike = vaeLike
+        max_ndf = 4
+        conv_layers = [
+            L.Convolution2D(input_nc, ndf, ksize=4, stride=2, pad=1)
+        ]
+        for n in range(1, n_blocks):
+            input_ndf = ndf * min(max_ndf, n)  # 2**(n-1)
+            output_ndf = ndf * min(max_ndf, n + 1)  # 2**n
+            conv_layers += [
+                BasicBlock(input_ndf, output_ndf, norm_layer, nl_layer)]
+        conv_layers += [
+            nl_layer_func, lambda x: F.average_pooling_2d(x, ksize=8)]
+        with self.init_scope():
+            if vaeLike:
+                self.fc = Sequential(*[L.Linear(output_ndf, output_nc)])
+                self.fcVar = Sequential(*[L.Linear(output_ndf, output_nc)])
+            else:
+                self.fc = Sequential(*[L.Linear(output_ndf, output_nc)])
+            self.conv = Sequential(*conv_layers)
+
+    def __call__(self, x):
+        x_conv = self.conv(x)
+        conv_flat = F.reshape(x_conv, (x.shape[0], -1))
+        output = self.fc(conv_flat)
+        if self.vaeLike:
+            outputVar = self.fcVar(conv_flat)
+            return output, outputVar
+        else:
+            return output
+        return output
