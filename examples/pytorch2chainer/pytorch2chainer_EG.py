@@ -143,6 +143,9 @@ def convert_E(nz, output_nc):
                 l2_list = l2.conv.functions
                 l1_list = l1.conv
                 copyto(l2_list, l1_list)
+                l2_list = l2.shortcut.functions
+                l1_list = l1.shortcut
+                copyto(l2_list, l1_list)
             elif isinstance(l2, lib.models.Sequential):
                 l2_list = l2.functions
                 l1_list = l1
