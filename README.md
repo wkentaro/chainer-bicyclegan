@@ -7,6 +7,6 @@ This is a faithful re-implementation of [the official PyTorch implementation](ht
 
 - [ ] pytorch2chainer
   - [x] Implement G
-  - [ ] Implement E
+  - [x] Implement E
   - [ ] Implement D
 - [ ] training
