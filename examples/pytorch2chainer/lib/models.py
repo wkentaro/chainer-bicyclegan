@@ -205,9 +205,12 @@ class E_ResNet(chainer.Chain):
             input_ndf = ndf * min(max_ndf, n)  # 2**(n-1)
             output_ndf = ndf * min(max_ndf, n + 1)  # 2**n
             conv_layers += [
-                BasicBlock(input_ndf, output_ndf, norm_layer, nl_layer)]
+                BasicBlock(input_ndf, output_ndf, norm_layer, nl_layer),
+            ]
         conv_layers += [
-            nl_layer_func, lambda x: F.average_pooling_2d(x, ksize=8)]
+            nl_layer_func,
+            lambda x: F.average_pooling_2d(x, ksize=8),
+        ]
         with self.init_scope():
             if vaeLike:
                 self.fc = Sequential(*[L.Linear(output_ndf, output_nc)])

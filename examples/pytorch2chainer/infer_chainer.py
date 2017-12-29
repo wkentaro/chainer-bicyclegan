@@ -82,8 +82,8 @@ x_B = cuda.to_gpu(x_B)
 x_B = chainer.Variable(x_B)
 
 n_samples = 33
-random_state = np.random.RandomState(0)
-z_samples = random_state.normal(0, 1, (n_samples, nz)).astype(np.float32)
+np.random.seed(0)
+z_samples = np.random.normal(0, 1, (n_samples, nz)).astype(np.float32)
 
 real_A = np.repeat(real_A, 3, axis=2)
 viz = [real_A, real_B]
@@ -95,7 +95,7 @@ for i in range(1 + n_samples):
             nz = std.shape[1]
             eps = np.random.normal(0, 1, (batchsize, nz)).astype(np.float32)
             eps = chainer.Variable(cuda.to_gpu(eps))
-            return eps * std + mu
+            return (eps * std) + mu
 
         mu, logvar = E(x_B)
         z = get_z(mu, logvar)

@@ -93,8 +93,8 @@ x_B = torch.from_numpy(x_B).cuda()
 x_B = torch.autograd.Variable(x_B, volatile=True)
 
 n_samples = 33
-random_state = np.random.RandomState(0)
-z_samples = random_state.normal(0, 1, (n_samples, nz)).astype(np.float32)
+np.random.seed(0)
+z_samples = np.random.normal(0, 1, (n_samples, nz)).astype(np.float32)
 
 real_A = np.repeat(real_A, 3, axis=2)
 viz = [real_A, real_B]
@@ -104,7 +104,9 @@ for i in range(1 + n_samples):
             std = logvar.mul(0.5).exp_()
             batchsize = std.size(0)
             nz = std.size(1)
-            eps = torch.autograd.Variable(torch.randn(batchsize, nz)).cuda()
+            eps = np.random.normal(0, 1, (batchsize, nz)).astype(np.float32)
+            eps = torch.autograd.Variable(
+                torch.from_numpy(eps).cuda(), volatile=True)
             return eps.mul(std).add_(mu)
 
         mu, logvar = E.forward(x_B)
