@@ -5,8 +5,8 @@ This is a faithful re-implementation of [the official PyTorch implementation](ht
 
 ## TODO
 
-- [ ] pytorch2chainer
+- [x] pytorch2chainer
   - [x] Implement G
   - [x] Implement E
-  - [ ] Implement D
+  - [x] Implement D
 - [ ] training
