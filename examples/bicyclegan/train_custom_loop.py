@@ -348,7 +348,8 @@ def main():
             # log
             # -----------------------------------------------------------------
             if iteration % 10 == 0:
-                time_per_iter = (time.time() - t_start) / (iteration + 1)
+                time_per_iter1 = ((time.time() - t_start) /
+                                  (iteration + 1) / batch_size)
 
                 if hasattr(loss_D, 'array'):
                     loss_D = float(loss_D.array)
@@ -373,7 +374,7 @@ def main():
                     'Iteration: {:d}/{:d} ({:.1%}), Time: {:f}'
                     .format(epoch, max_epoch, 1. * epoch / max_epoch,
                             iteration, dataset_size,
-                            1. * iteration / dataset_size, time_per_iter))
+                            1. * iteration / dataset_size, time_per_iter1))
 
                 print('D: {:.2f}'.format(loss_D),
                       'D2: {:.2f}'.format(loss_D2),
