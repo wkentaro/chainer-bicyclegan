@@ -112,7 +112,7 @@ def backward_EG(fake_data_encoded, fake_data_random,
     loss_G_GAN2 = backward_G_GAN(fake_data_random, D2, lambda_GAN2)
     # 2. KL loss
     if lambda_kl > 0:
-        kl_element = ((mu * mu) + F.exp(logvar) * -1) + 1 + logvar
+        kl_element = (((mu * mu) + F.exp(logvar)) * -1) + 1 + logvar
         loss_kl = F.sum(kl_element) * -0.5 * lambda_kl
     else:
         loss_kl = 0
@@ -125,7 +125,7 @@ def backward_EG(fake_data_encoded, fake_data_random,
 
     loss_G = loss_G_GAN + loss_G_GAN2 + loss_G_L1 + loss_kl
     loss_G.backward()
-    return loss_G
+    return loss_G, loss_G_GAN, loss_G_GAN2, loss_G_L1, loss_kl
 
 
 def backward_G_alone(lambda_z, mu2, z_random):
@@ -136,6 +136,13 @@ def backward_G_alone(lambda_z, mu2, z_random):
     else:
         loss_z_L1 = 0
     return loss_z_L1
+
+
+def get_z_random(size0, size1):
+    z_random = np.random.normal(0, 1, (size0, size1))
+    z_random = z_random.astype(np.float32)
+    z_random = cuda.to_gpu(z_random)
+    return chainer.Variable(z_random)
 
 
 def main():
@@ -232,15 +239,14 @@ def main():
         f.write(','.join([
             'epoch',
             'iteration',
+            'loss_D',
+            'loss_D2',
             'loss_G',
-            'loss_G_A',
-            'loss_G_B',
-            'loss_idt_A',
-            'loss_idt_B',
-            'loss_cycle_A',
-            'loss_cycle_B',
-            'loss_D_A',
-            'loss_D_B',
+            'loss_G_GAN',
+            'loss_G_GAN2',
+            'loss_G_L1',
+            'loss_kl',
+            'loss_z_L1',
         ]))
         f.write('\n')
 
@@ -275,14 +281,10 @@ def main():
 
             # update D
             # -----------------------------------------------------------------
+            # forward {{
+
             mu, logvar = E(real_B_encoded)
             std = F.exp(logvar * 0.5)
-
-            def get_z_random(size0, size1):
-                z_random = np.random.normal(0, 1, (size0, size1))
-                z_random = z_random.astype(np.float32)
-                z_random = cuda.to_gpu(z_random)
-                return chainer.Variable(z_random)
 
             eps = get_z_random(std.shape[0], std.shape[1])
             z_encoded = (eps * std) + mu
@@ -306,6 +308,8 @@ def main():
             # eps2 = get_z_random(std2.shape[0], std2.shape[1])
             # z_predict = (eps2 * std2) + mu2
 
+            # }} forward
+
             # update D1
             lambda_GAN = 1.0
             lambda_GAN2 = 1.0
@@ -326,7 +330,7 @@ def main():
             # -----------------------------------------------------------------
             E.cleargrads()
             G.cleargrads()
-            loss_G = backward_EG(
+            loss_G, loss_G_GAN, loss_G_GAN2, loss_G_L1, loss_kl = backward_EG(
                 fake_data_encoded, fake_data_random,
                 fake_B_encoded, real_B_encoded,
                 D, D2, lambda_GAN, lambda_GAN2,
@@ -352,6 +356,14 @@ def main():
                     loss_D2 = float(loss_D2.array)
                 if hasattr(loss_G, 'array'):
                     loss_G = float(loss_G.array)
+                if hasattr(loss_G_GAN, 'array'):
+                    loss_G_GAN = float(loss_G_GAN.array)
+                if hasattr(loss_G_GAN2, 'array'):
+                    loss_G_GAN2 = float(loss_G_GAN2.array)
+                if hasattr(loss_G_L1, 'array'):
+                    loss_G_L1 = float(loss_G_L1.array)
+                if hasattr(loss_kl, 'array'):
+                    loss_kl = float(loss_kl.array)
                 if hasattr(loss_z_L1, 'array'):
                     loss_z_L1 = float(loss_z_L1.array)
 
@@ -366,7 +378,11 @@ def main():
                 print('D: {:.2f}'.format(loss_D),
                       'D2: {:.2f}'.format(loss_D2),
                       'G: {:.2f}'.format(loss_G),
-                      'Z_L1: {:.2f}'.format(loss_z_L1))
+                      'G_GAN: {:.2f}'.format(loss_G_GAN),
+                      'G_GAN2: {:.2f}'.format(loss_G_GAN2),
+                      'G_L1: {:.2f}'.format(loss_G_L1),
+                      'kl: {:.2f}'.format(loss_kl),
+                      'z_L1: {:.2f}'.format(loss_z_L1))
 
                 with open(osp.join(out_dir, 'log.csv'), 'a') as f:
                     f.write(','.join(map(str, [
@@ -375,6 +391,10 @@ def main():
                         loss_D,
                         loss_D2,
                         loss_G,
+                        loss_G_GAN,
+                        loss_G_GAN2,
+                        loss_G_L1,
+                        loss_kl,
                         loss_z_L1,
                     ])))
                     f.write('\n')
