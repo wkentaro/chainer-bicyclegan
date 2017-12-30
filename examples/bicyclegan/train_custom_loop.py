@@ -258,6 +258,8 @@ def main():
 
         for iteration in range(dataset_size // batch_size):
             batch = next(iterator)
+            if len(batch) != batch_size:
+                continue
 
             img_A, img_B = zip(*batch)
             img_A = np.asarray(img_A)[:, 0:1, :, :]
