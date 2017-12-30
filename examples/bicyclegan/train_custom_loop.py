@@ -391,7 +391,7 @@ def main():
                 with open(osp.join(out_dir, 'log.csv'), 'a') as f:
                     f.write(','.join(map(str, [
                         epoch,
-                        ((epoch - 1) * dataset_size) + iteration,
+                        ((epoch - 1) * dataset_size) + iteration * batch_size,
                         loss_D,
                         loss_D2,
                         loss_G,
