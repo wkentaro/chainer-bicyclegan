@@ -91,7 +91,8 @@ def backward_G_GAN(fake, D, ll):
     xp = cuda.get_array_module(fake.array)
 
     if ll > 0.0:
-        pred_fake = D(fake)
+        with chainer.using_config('enable_backprop', False):
+            pred_fake = D(fake)
         loss_G_GAN = 0
         for pf in pred_fake:
             loss_G_GAN += F.mean_squared_error(pf, xp.ones_like(pf.array))
@@ -282,7 +283,6 @@ def main():
             # update D
             # -----------------------------------------------------------------
             # forward {{
-
             mu, logvar = E(real_B_encoded)
             std = F.exp(logvar * 0.5)
 
