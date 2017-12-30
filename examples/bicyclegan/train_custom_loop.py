@@ -406,6 +406,7 @@ def main():
         # visualize
         # -------------------------------------------------------------------------
         real_A = real_A_encoded.array[0].transpose(1, 2, 0)
+        real_A = np.repeat(real_A, 3, axis=2)
         real_B = real_B_encoded.array[0].transpose(1, 2, 0)
         real_A = cuda.to_cpu(real_A)
         real_B = cuda.to_cpu(real_B)
