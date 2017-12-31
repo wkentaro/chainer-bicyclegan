@@ -405,16 +405,22 @@ def main():
 
         # visualize
         # -------------------------------------------------------------------------
-        real_A = real_A_encoded.array[0].transpose(1, 2, 0)
-        real_A = np.repeat(real_A, 3, axis=2)
-        real_B = real_B_encoded.array[0].transpose(1, 2, 0)
-        real_A = cuda.to_cpu(real_A)
-        real_B = cuda.to_cpu(real_B)
+        real_A_encoded = real_A_encoded.array[0].transpose(1, 2, 0)
+        real_A_encoded = np.repeat(real_A_encoded, 3, axis=2)
+        real_A_encoded = cuda.to_cpu(real_A_encoded)
+        real_B_encoded = real_B_encoded.array[0].transpose(1, 2, 0)
+        real_B_encoded = cuda.to_cpu(real_B_encoded)
+        real_A_random = real_A_random.array[0].transpose(1, 2, 0)
+        real_A_random = np.repeat(real_A_random, 3, axis=2)
+        real_A_random = cuda.to_cpu(real_A_random)
+        real_B_random = real_B_random.array[0].transpose(1, 2, 0)
+        real_B_random = cuda.to_cpu(real_B_random)
         fake_B_encoded = fake_B_encoded.array[0].transpose(1, 2, 0)
-        fake_B_random = fake_B_random.array[0].transpose(1, 2, 0)
         fake_B_encoded = cuda.to_cpu(fake_B_encoded)
+        fake_B_random = fake_B_random.array[0].transpose(1, 2, 0)
         fake_B_random = cuda.to_cpu(fake_B_random)
-        viz = np.vstack([np.hstack([real_A, real_B]),
+        viz = np.vstack([np.hstack([real_A_encoded, real_B_encoded]),
+                         np.hstack([real_A_random, real_B_random]),
                          np.hstack([fake_B_encoded, fake_B_random])])
         skimage.io.imsave(osp.join(out_dir, '{:08}.jpg'.format(epoch)), viz)
 
