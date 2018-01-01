@@ -91,8 +91,7 @@ def backward_G_GAN(fake, D, ll):
     xp = cuda.get_array_module(fake.array)
 
     if ll > 0.0:
-        with chainer.using_config('enable_backprop', False):
-            pred_fake = D(fake)
+        pred_fake = D(fake)
         loss_G_GAN = 0
         for pf in pred_fake:
             loss_G_GAN += F.mean_squared_error(pf, xp.ones_like(pf.array))
@@ -113,7 +112,7 @@ def backward_EG(fake_data_encoded, fake_data_random,
     loss_G_GAN2 = backward_G_GAN(fake_data_random, D2, lambda_GAN2)
     # 2. KL loss
     if lambda_kl > 0:
-        kl_element = (((mu * mu) + F.exp(logvar)) * -1) + 1 + logvar
+        kl_element = (((mu ** 2) + F.exp(logvar)) * -1) + 1 + logvar
         loss_kl = F.sum(kl_element) * -0.5 * lambda_kl
     else:
         loss_kl = 0
@@ -125,7 +124,7 @@ def backward_EG(fake_data_encoded, fake_data_random,
         loss_G_L1 = 0
 
     loss_G = loss_G_GAN + loss_G_GAN2 + loss_G_L1 + loss_kl
-    loss_G.backward(enable_double_backprop=True)
+    loss_G.backward()
     return loss_G, loss_G_GAN, loss_G_GAN2, loss_G_L1, loss_kl
 
 
