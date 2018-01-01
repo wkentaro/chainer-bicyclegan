@@ -287,7 +287,6 @@ def main():
             # forward {{
             mu, logvar = E(real_B_encoded)
             std = F.exp(logvar * 0.5)
-
             eps = get_z_random(std.shape[0], std.shape[1])
             z_encoded = (eps * std) + mu
 
@@ -347,82 +346,84 @@ def main():
                 loss_z_L1 = backward_G_alone(lambda_z, mu2, z_random)
                 optimizer_G.update()
 
+            if iteration % (100 // batch_size) != 0:
+                continue
+
             # log
             # -----------------------------------------------------------------
-            if iteration % (100 // batch_size) == 0:
-                time_per_iter1 = ((time.time() - t_start) /
-                                  (iteration + 1) / batch_size)
+            time_per_iter1 = ((time.time() - t_start) /
+                                (iteration + 1) / batch_size)
 
-                if hasattr(loss_D, 'array'):
-                    loss_D = float(loss_D.array)
-                if hasattr(loss_D2, 'array'):
-                    loss_D2 = float(loss_D2.array)
-                if hasattr(loss_G, 'array'):
-                    loss_G = float(loss_G.array)
-                if hasattr(loss_G_GAN, 'array'):
-                    loss_G_GAN = float(loss_G_GAN.array)
-                if hasattr(loss_G_GAN2, 'array'):
-                    loss_G_GAN2 = float(loss_G_GAN2.array)
-                if hasattr(loss_G_L1, 'array'):
-                    loss_G_L1 = float(loss_G_L1.array)
-                if hasattr(loss_kl, 'array'):
-                    loss_kl = float(loss_kl.array)
-                if hasattr(loss_z_L1, 'array'):
-                    loss_z_L1 = float(loss_z_L1.array)
+            if hasattr(loss_D, 'array'):
+                loss_D = float(loss_D.array)
+            if hasattr(loss_D2, 'array'):
+                loss_D2 = float(loss_D2.array)
+            if hasattr(loss_G, 'array'):
+                loss_G = float(loss_G.array)
+            if hasattr(loss_G_GAN, 'array'):
+                loss_G_GAN = float(loss_G_GAN.array)
+            if hasattr(loss_G_GAN2, 'array'):
+                loss_G_GAN2 = float(loss_G_GAN2.array)
+            if hasattr(loss_G_L1, 'array'):
+                loss_G_L1 = float(loss_G_L1.array)
+            if hasattr(loss_kl, 'array'):
+                loss_kl = float(loss_kl.array)
+            if hasattr(loss_z_L1, 'array'):
+                loss_z_L1 = float(loss_z_L1.array)
 
-                print('-' * 79)
-                print(
-                    'Epoch: {:d}/{:d} ({:.1%}), '
-                    'Iteration: {:d}/{:d} ({:.1%}), Time: {:f}'
-                    .format(epoch, max_epoch, 1. * epoch / max_epoch,
-                            batch_size * iteration, dataset_size,
-                            1. * batch_size * iteration / dataset_size,
-                            time_per_iter1))
+            print('-' * 79)
+            print(
+                'Epoch: {:d}/{:d} ({:.1%}), '
+                'Iteration: {:d}/{:d} ({:.1%}), Time: {:f}'
+                .format(epoch, max_epoch, 1. * epoch / max_epoch,
+                        batch_size * iteration, dataset_size,
+                        1. * batch_size * iteration / dataset_size,
+                        time_per_iter1))
 
-                print('D: {:.2f}'.format(loss_D),
-                      'D2: {:.2f}'.format(loss_D2),
-                      'G: {:.2f}'.format(loss_G),
-                      'G_GAN: {:.2f}'.format(loss_G_GAN),
-                      'G_GAN2: {:.2f}'.format(loss_G_GAN2),
-                      'G_L1: {:.2f}'.format(loss_G_L1),
-                      'kl: {:.2f}'.format(loss_kl),
-                      'z_L1: {:.2f}'.format(loss_z_L1))
+            print('D: {:.2f}'.format(loss_D),
+                    'D2: {:.2f}'.format(loss_D2),
+                    'G: {:.2f}'.format(loss_G),
+                    'G_GAN: {:.2f}'.format(loss_G_GAN),
+                    'G_GAN2: {:.2f}'.format(loss_G_GAN2),
+                    'G_L1: {:.2f}'.format(loss_G_L1),
+                    'kl: {:.2f}'.format(loss_kl),
+                    'z_L1: {:.2f}'.format(loss_z_L1))
 
-                with open(osp.join(out_dir, 'log.csv'), 'a') as f:
-                    f.write(','.join(map(str, [
-                        epoch,
-                        ((epoch - 1) * dataset_size) + iteration * batch_size,
-                        loss_D,
-                        loss_D2,
-                        loss_G,
-                        loss_G_GAN,
-                        loss_G_GAN2,
-                        loss_G_L1,
-                        loss_kl,
-                        loss_z_L1,
-                    ])))
-                    f.write('\n')
+            with open(osp.join(out_dir, 'log.csv'), 'a') as f:
+                f.write(','.join(map(str, [
+                    epoch,
+                    ((epoch - 1) * dataset_size) + iteration * batch_size,
+                    loss_D,
+                    loss_D2,
+                    loss_G,
+                    loss_G_GAN,
+                    loss_G_GAN2,
+                    loss_G_L1,
+                    loss_kl,
+                    loss_z_L1,
+                ])))
+                f.write('\n')
 
-        # visualize
-        # -------------------------------------------------------------------------
-        real_A_encoded = real_A_encoded.array[0].transpose(1, 2, 0)
-        real_A_encoded = np.repeat(real_A_encoded, 3, axis=2)
-        real_A_encoded = cuda.to_cpu(real_A_encoded)
-        real_B_encoded = real_B_encoded.array[0].transpose(1, 2, 0)
-        real_B_encoded = cuda.to_cpu(real_B_encoded)
-        real_A_random = real_A_random.array[0].transpose(1, 2, 0)
-        real_A_random = np.repeat(real_A_random, 3, axis=2)
-        real_A_random = cuda.to_cpu(real_A_random)
-        real_B_random = real_B_random.array[0].transpose(1, 2, 0)
-        real_B_random = cuda.to_cpu(real_B_random)
-        fake_B_encoded = fake_B_encoded.array[0].transpose(1, 2, 0)
-        fake_B_encoded = cuda.to_cpu(fake_B_encoded)
-        fake_B_random = fake_B_random.array[0].transpose(1, 2, 0)
-        fake_B_random = cuda.to_cpu(fake_B_random)
-        viz = np.vstack([np.hstack([real_A_encoded, real_B_encoded]),
-                         np.hstack([real_A_random, real_B_random]),
-                         np.hstack([fake_B_encoded, fake_B_random])])
-        skimage.io.imsave(osp.join(out_dir, '{:08}.jpg'.format(epoch)), viz)
+            # visualize
+            # -------------------------------------------------------------------------
+            real_A_encoded = real_A_encoded.array[0].transpose(1, 2, 0)
+            real_A_encoded = np.repeat(real_A_encoded, 3, axis=2)
+            real_A_encoded = cuda.to_cpu(real_A_encoded)
+            real_B_encoded = real_B_encoded.array[0].transpose(1, 2, 0)
+            real_B_encoded = cuda.to_cpu(real_B_encoded)
+            real_A_random = real_A_random.array[0].transpose(1, 2, 0)
+            real_A_random = np.repeat(real_A_random, 3, axis=2)
+            real_A_random = cuda.to_cpu(real_A_random)
+            real_B_random = real_B_random.array[0].transpose(1, 2, 0)
+            real_B_random = cuda.to_cpu(real_B_random)
+            fake_B_encoded = fake_B_encoded.array[0].transpose(1, 2, 0)
+            fake_B_encoded = cuda.to_cpu(fake_B_encoded)
+            fake_B_random = fake_B_random.array[0].transpose(1, 2, 0)
+            fake_B_random = cuda.to_cpu(fake_B_random)
+            viz = np.vstack([np.hstack([real_A_encoded, real_B_encoded]),
+                             np.hstack([real_A_random, real_B_random]),
+                             np.hstack([fake_B_encoded, fake_B_random])])
+            skimage.io.imsave(osp.join(out_dir, '{:08}.jpg'.format(epoch)), viz)
 
         S.save_npz(osp.join(out_dir, '{:08}_E.npz'.format(epoch)), E)
         S.save_npz(osp.join(out_dir, '{:08}_G.npz'.format(epoch)), G)
