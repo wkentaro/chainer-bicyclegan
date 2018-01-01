@@ -4,6 +4,8 @@ import chainer.links as L
 
 from chainer_cyclegan.links import InstanceNormalization
 
+from .initializers import XavierNormal
+
 
 class G_Unet_add_all(chainer.Chain):
 
@@ -79,7 +81,8 @@ class UnetBlock_with_z(chainer.Chain):
         self.nz = nz
         input_nc = input_nc + nz
         downconv = [
-            L.Convolution2D(input_nc, inner_nc, ksize=4, stride=2, pad=p),
+            L.Convolution2D(input_nc, inner_nc, ksize=4, stride=2, pad=p,
+                            initialW=XavierNormal()),
         ]
         downrelu = lambda x: F.leaky_relu(x, slope=0.2)
 
@@ -167,19 +170,22 @@ class BasicBlock(chainer.Chain):
             layers += [norm_layer(inplanes)]
         layers += [nl_layer_func]
         layers += [
-            L.Convolution2D(inplanes, inplanes, ksize=3, stride=1, pad=1)]
+            L.Convolution2D(inplanes, inplanes, ksize=3, stride=1, pad=1,
+                            initialW=XavierNormal())]
         if norm_layer is not None:
             layers += [norm_layer(inplanes)]
         layers += [nl_layer_func]
         layers += [Sequential(
-            L.Convolution2D(inplanes, outplanes, ksize=3, stride=1, pad=1),
+            L.Convolution2D(inplanes, outplanes, ksize=3, stride=1, pad=1,
+                            initialW=XavierNormal()),
             lambda x: F.average_pooling_2d(x, ksize=2, stride=2),
         )]
         with self.init_scope():
             self.conv = Sequential(*layers)
             self.shortcut = Sequential(
                 lambda x: F.average_pooling_2d(x, ksize=2, stride=2),
-                L.Convolution2D(inplanes, outplanes, ksize=1, stride=1, pad=0),
+                L.Convolution2D(inplanes, outplanes, ksize=1, stride=1, pad=0,
+                                initialW=XavierNormal()),
             )
 
     def __call__(self, x):
@@ -199,7 +205,8 @@ class E_ResNet(chainer.Chain):
         self.vaeLike = vaeLike
         max_ndf = 4
         conv_layers = [
-            L.Convolution2D(input_nc, ndf, ksize=4, stride=2, pad=1)
+            L.Convolution2D(input_nc, ndf, ksize=4, stride=2, pad=1,
+                            initialW=XavierNormal())
         ]
         for n in range(1, n_blocks):
             input_ndf = ndf * min(max_ndf, n)  # 2**(n-1)
@@ -213,10 +220,13 @@ class E_ResNet(chainer.Chain):
         ]
         with self.init_scope():
             if vaeLike:
-                self.fc = Sequential(*[L.Linear(output_ndf, output_nc)])
-                self.fcVar = Sequential(*[L.Linear(output_ndf, output_nc)])
+                self.fc = Sequential(*[L.Linear(
+                    output_ndf, output_nc, initialW=XavierNormal())])
+                self.fcVar = Sequential(*[L.Linear(
+                    output_ndf, output_nc, initialW=XavierNormal())])
             else:
-                self.fc = Sequential(*[L.Linear(output_ndf, output_nc)])
+                self.fc = Sequential(*[L.Linear(
+                    output_ndf, output_nc, initialW=XavierNormal())])
             self.conv = Sequential(*conv_layers)
 
     def __call__(self, x):
@@ -267,7 +277,8 @@ class D_NLayersMulti(chainer.Chain):
         kw = 4
         padw = 1
         sequence = [
-            L.Convolution2D(input_nc, ndf, ksize=kw, stride=2, pad=padw),
+            L.Convolution2D(input_nc, ndf, ksize=kw, stride=2, pad=padw,
+                            initialW=XavierNormal()),
             lambda x: F.leaky_relu(x, 0.2),
         ]
 
@@ -278,7 +289,8 @@ class D_NLayersMulti(chainer.Chain):
             nf_mult = min(2 ** n, 8)
             sequence += [
                 L.Convolution2D(ndf * nf_mult_prev, ndf * nf_mult,
-                                ksize=kw, stride=2, pad=padw),
+                                ksize=kw, stride=2, pad=padw,
+                                initialW=XavierNormal()),
                 norm_layer(ndf * nf_mult),
                 lambda x: F.leaky_relu(x, 0.2),
             ]
@@ -287,13 +299,15 @@ class D_NLayersMulti(chainer.Chain):
         nf_mult = min(2 ** n_layers, 8)
         sequence += [
             L.Convolution2D(ndf * nf_mult_prev, ndf * nf_mult,
-                            ksize=kw, stride=1, pad=padw),
+                            ksize=kw, stride=1, pad=padw,
+                            initialW=XavierNormal()),
             norm_layer(ndf * nf_mult),
             lambda x: F.leaky_relu(x, 0.2),
         ]
 
         sequence += [
-            L.Convolution2D(ndf * nf_mult, 1, ksize=kw, stride=1, pad=padw),
+            L.Convolution2D(ndf * nf_mult, 1, ksize=kw, stride=1, pad=padw,
+                            initialW=XavierNormal()),
         ]
 
         if use_sigmoid:
