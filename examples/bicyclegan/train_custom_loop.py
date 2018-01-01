@@ -223,8 +223,8 @@ def main():
     iterator = chainer.iterators.SerialIterator(dataset, batch_size=batch_size)
 
     epoch_count = 1
-    niter = 100
-    niter_decay = 100
+    niter = 30
+    niter_decay = 30
 
     def lambda_rule(epoch):
         lr_l = 1.0 - (max(0, epoch + 1 + epoch_count - niter) /
