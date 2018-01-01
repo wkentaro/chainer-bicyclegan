@@ -352,7 +352,7 @@ def main():
             # log
             # -----------------------------------------------------------------
             time_per_iter1 = ((time.time() - t_start) /
-                                (iteration + 1) / batch_size)
+                              (iteration + 1) / batch_size)
 
             if hasattr(loss_D, 'array'):
                 loss_D = float(loss_D.array)
@@ -381,13 +381,13 @@ def main():
                         time_per_iter1))
 
             print('D: {:.2f}'.format(loss_D),
-                    'D2: {:.2f}'.format(loss_D2),
-                    'G: {:.2f}'.format(loss_G),
-                    'G_GAN: {:.2f}'.format(loss_G_GAN),
-                    'G_GAN2: {:.2f}'.format(loss_G_GAN2),
-                    'G_L1: {:.2f}'.format(loss_G_L1),
-                    'kl: {:.2f}'.format(loss_kl),
-                    'z_L1: {:.2f}'.format(loss_z_L1))
+                  'D2: {:.2f}'.format(loss_D2),
+                  'G: {:.2f}'.format(loss_G),
+                  'G_GAN: {:.2f}'.format(loss_G_GAN),
+                  'G_GAN2: {:.2f}'.format(loss_G_GAN2),
+                  'G_L1: {:.2f}'.format(loss_G_L1),
+                  'kl: {:.2f}'.format(loss_kl),
+                  'z_L1: {:.2f}'.format(loss_z_L1))
 
             with open(osp.join(out_dir, 'log.csv'), 'a') as f:
                 f.write(','.join(map(str, [
@@ -423,7 +423,8 @@ def main():
             viz = np.vstack([np.hstack([real_A_encoded, real_B_encoded]),
                              np.hstack([real_A_random, real_B_random]),
                              np.hstack([fake_B_encoded, fake_B_random])])
-            skimage.io.imsave(osp.join(out_dir, '{:08}.jpg'.format(epoch)), viz)
+            skimage.io.imsave(
+                osp.join(out_dir, '{:08}.jpg'.format(epoch)), viz)
 
         S.save_npz(osp.join(out_dir, '{:08}_E.npz'.format(epoch)), E)
         S.save_npz(osp.join(out_dir, '{:08}_G.npz'.format(epoch)), G)
