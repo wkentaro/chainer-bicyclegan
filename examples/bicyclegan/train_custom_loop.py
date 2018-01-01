@@ -125,7 +125,7 @@ def backward_EG(fake_data_encoded, fake_data_random,
         loss_G_L1 = 0
 
     loss_G = loss_G_GAN + loss_G_GAN2 + loss_G_L1 + loss_kl
-    loss_G.backward()
+    loss_G.backward(enable_double_backprop=True)
     return loss_G, loss_G_GAN, loss_G_GAN2, loss_G_L1, loss_kl
 
 
