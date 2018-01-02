@@ -14,30 +14,43 @@ import skimage.io
 import lib
 
 
-chainer.global_config.train = False
-chainer.global_config.enable_backprop = False
+here = osp.dirname(osp.abspath(__file__))
+data_dir = osp.join(here, 'data')
+default_G_model_file = osp.join(data_dir, 'edges2shoes_net_G_from_pytorch.npz')
+default_E_model_file = osp.join(data_dir, 'edges2shoes_net_E_from_pytorch.npz')
+default_img_file = osp.join(data_dir, 'edges2shoes_val_100_AB.jpg')
 
 parser = argparse.ArgumentParser(
     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument('-g', '--gpu', type=int, default=0, help='GPU id')
+parser.add_argument('-i', '--img-file', default=default_img_file,
+                    help='image file')
+parser.add_argument('-E', '--E-model-file', default=default_E_model_file,
+                    help='E model file')
+parser.add_argument('-G', '--G-model-file', default=default_G_model_file,
+                    help='G model file')
 args = parser.parse_args()
 
-here = osp.dirname(osp.abspath(__file__))
-img_file = osp.join(here, 'data/edges2shoes_val_100_AB.jpg')
-G_model_file = osp.join(here, 'data/edges2shoes_net_G_from_chainer.npz')
-E_model_file = osp.join(here, 'data/edges2shoes_net_E_from_chainer.npz')
-
 gpu = args.gpu
-nz = 8
-output_nc = 3
+img_file = args.img_file
+G_model_file = args.G_model_file
+E_model_file = args.E_model_file
 
-print('GPU id: %d' % args.gpu)
+# -----------------------------------------------------------------------------
+
+print('GPU id: %d' % gpu)
 print('G model: %s' % G_model_file)
 print('E model: %s' % E_model_file)
 print('Input file: %s' % img_file)
 
+chainer.global_config.train = False
+chainer.global_config.enable_backprop = False
+
 assert gpu >= 0
 cuda.get_device_from_id(gpu).use()
+
+nz = 8
+output_nc = 3
 
 G = lib.models.G_Unet_add_all(
     input_nc=1,
