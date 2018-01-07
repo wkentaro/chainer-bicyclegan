@@ -138,6 +138,5 @@ for i in range(1 + n_samples):
     viz.append(fake_B)
 viz = fcn.utils.get_tile_image(viz)
 
-out_file = osp.join(here, 'logs/infer_pytorch.png')
-cv2.imwrite(out_file, viz[:, :, ::-1])
-print('Saved file: %s' % out_file)
+cv2.imwrite(args.out_file, viz[:, :, ::-1])
+print('Saved file: %s' % args.out_file)
