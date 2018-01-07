@@ -84,6 +84,7 @@ def backward_D(D, real, fake):
     # Combined loss
     loss_D = loss_D_fake + loss_D_real
     loss_D.backward()
+    loss_D.unchain_backward()
     return loss_D, [loss_D_fake, loss_D_real]
 
 
@@ -133,6 +134,7 @@ def backward_G_alone(lambda_z, mu2, z_random):
     if lambda_z > 0.0:
         loss_z_L1 = F.mean(F.absolute(mu2 - z_random)) * lambda_z
         loss_z_L1.backward()
+        loss_z_L1.unchain_backward()
     else:
         loss_z_L1 = 0
     return loss_z_L1
