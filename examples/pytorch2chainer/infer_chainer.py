@@ -19,6 +19,7 @@ data_dir = osp.join(here, 'data')
 default_G_model_file = osp.join(data_dir, 'edges2shoes_net_G_from_pytorch.npz')
 default_E_model_file = osp.join(data_dir, 'edges2shoes_net_E_from_pytorch.npz')
 default_img_file = osp.join(data_dir, 'edges2shoes_val_100_AB.jpg')
+default_out_file = osp.join(here, 'logs/infer_chainer.png')
 
 parser = argparse.ArgumentParser(
     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -29,12 +30,15 @@ parser.add_argument('-E', '--E-model-file', default=default_E_model_file,
                     help='E model file')
 parser.add_argument('-G', '--G-model-file', default=default_G_model_file,
                     help='G model file')
+parser.add_argument('-o', '--out-file', default=default_out_file,
+                    help='Output file')
 args = parser.parse_args()
 
 gpu = args.gpu
 img_file = args.img_file
 G_model_file = args.G_model_file
 E_model_file = args.E_model_file
+out_file = args.out_file
 
 # -----------------------------------------------------------------------------
 
@@ -124,6 +128,5 @@ for i in range(1 + n_samples):
     viz.append(fake_B)
 viz = fcn.utils.get_tile_image(viz)
 
-out_file = osp.join(here, 'logs/infer_chainer.png')
 cv2.imwrite(out_file, viz[:, :, ::-1])
 print('Saved file: %s' % out_file)
