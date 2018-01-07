@@ -23,19 +23,31 @@ from models.networks import G_Unet_add_all
 from models.networks import get_non_linearity
 from models.networks import get_norm_layer
 
+data_dir = osp.join(here, 'data')
+default_G_model_file = osp.join(data_dir, 'edges2shoes_net_G.pth')
+default_E_model_file = osp.join(data_dir, 'edges2shoes_net_E.pth')
+default_img_file = osp.join(data_dir, 'edges2shoes_val_100_AB.jpg')
+default_out_file = osp.join(here, 'logs/infer_pytorch.png')
 
 parser = argparse.ArgumentParser(
     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument('-g', '--gpu', type=int, default=0, help='GPU id')
+parser.add_argument('-i', '--img-file', default=default_img_file,
+                    help='image file')
+parser.add_argument('-E', '--E-model-file', default=default_E_model_file,
+                    help='E model file')
+parser.add_argument('-G', '--G-model-file', default=default_G_model_file,
+                    help='G model file')
+parser.add_argument('-o', '--out-file', default=default_out_file,
+                    help='Output file')
 args = parser.parse_args()
 
-img_file = osp.join(here, 'data/edges2shoes_val_100_AB.jpg')
-G_model_file = osp.join(here, 'data/edges2shoes_net_G.pth')
-E_model_file = osp.join(here, 'data/edges2shoes_net_E.pth')
-
 gpu = args.gpu
-nz = 8
-output_nc = 3
+img_file = args.img_file
+G_model_file = args.G_model_file
+E_model_file = args.E_model_file
+
+# -----------------------------------------------------------------------------
 
 print('GPU id: %d' % args.gpu)
 print('G model: %s' % G_model_file)
@@ -43,6 +55,9 @@ print('E model: %s' % E_model_file)
 print('Input file: %s' % img_file)
 
 os.environ['CUDA_VISIBLE_DEVICES'] = str(gpu)
+
+nz = 8
+output_nc = 3
 
 G = G_Unet_add_all(
     input_nc=1,
