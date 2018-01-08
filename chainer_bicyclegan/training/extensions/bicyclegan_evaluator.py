@@ -49,6 +49,8 @@ class BicycleGANEvaluator(training.Extension):
 
         rows = []
         for batch in it:
+            assert len(batch) == 1
+
             img_A, img_B = zip(*batch)
             row = [
                 img_as_ubyte(img_A[0].transpose(1, 2, 0)),
@@ -58,7 +60,6 @@ class BicycleGANEvaluator(training.Extension):
             img_A = np.asarray(img_A)[:, 0:1, :, :]
             img_B = np.asarray(img_B)
 
-            assert len(img_A) == len(img_B) == 2
             real_A = Variable(self.converter(img_A, self.device))
             real_B = Variable(self.converter(img_B, self.device))
 

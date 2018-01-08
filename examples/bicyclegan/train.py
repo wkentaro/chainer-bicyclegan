@@ -103,7 +103,7 @@ def train(dataset_train, dataset_test, gpu, suffix=''):
     iter_train = chainer.iterators.SerialIterator(
         dataset_train, batch_size=batch_size)
     iter_test = chainer.iterators.SerialIterator(
-        dataset_test, batch_size=batch_size, repeat=False, shuffle=False)
+        dataset_test, batch_size=1, repeat=False, shuffle=False)
 
     # Updater
 
