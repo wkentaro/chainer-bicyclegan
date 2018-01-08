@@ -47,11 +47,12 @@ class BicycleGANTransform(object):
         img_A = chainercv.transforms.resize(
             img_A, size=self._load_size,
             interpolation=PIL.Image.BICUBIC)
+        img_A, param_crop = chainercv.transforms.random_crop(
+            img_A, size=self._fine_size, return_param=True)
         if self._train:
-            img_A, param_crop = chainercv.transforms.random_crop(
-                img_A, size=self._fine_size, return_param=True)
             # img_A, param_flip = chainercv.transforms.random_flip(
             #     img_A, x_random=True, return_param=True)
+            pass
         img_A = img_A.astype(np.float32) / 255  # ToTensor
         img_A = (img_A - 0.5) / 0.5  # Normalize
 
@@ -59,10 +60,11 @@ class BicycleGANTransform(object):
         img_B = chainercv.transforms.resize(
             img_B, size=self._load_size,
             interpolation=PIL.Image.BICUBIC)
+        img_B = img_B[:, param_crop['y_slice'], param_crop['x_slice']]
         if self._train:
-            img_B = img_B[:, param_crop['y_slice'], param_crop['x_slice']]
             # img_B = chainercv.transforms.flip(
             #     img_B, x_flip=param_flip['x_flip'])
+            pass
         img_B = img_B.astype(np.float32) / 255  # ToTensor
         img_B = (img_B - 0.5) / 0.5  # Normalize
 
