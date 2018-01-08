@@ -6,7 +6,6 @@ import argparse
 import datetime
 import os
 import os.path as osp
-import sys
 
 os.environ['MPLBACKEND'] = 'Agg'
 
@@ -15,60 +14,17 @@ from chainer.datasets import TransformDataset
 import chainer.optimizers as O
 from chainer import training
 from chainer.training import extensions
-import chainercv
 import cupy as cp
 import numpy as np
-import PIL.Image
 
 from chainer_cyclegan.datasets import BerkeleyPix2PixDataset
 
-here = osp.dirname(osp.abspath(__file__))
-sys.path.insert(0, osp.join(here, '../pytorch2chainer'))
-
-from lib.models import D_NLayersMulti
-from lib.models import E_ResNet
-from lib.models import G_Unet_add_all
-
-from bicyclegan_evaluator import BicycleGANEvaluator
-from updater import BicycleGANUpdater
-
-
-class BicycleGANTransform(object):
-
-    def __init__(self, train=True, load_size=(286, 286), fine_size=(256, 256)):
-        self._train = train
-        self._load_size = load_size
-        self._fine_size = fine_size
-
-    def __call__(self, in_data):
-        img_A, img_B = in_data
-
-        img_A = img_A.transpose(2, 0, 1)
-        img_A = chainercv.transforms.resize(
-            img_A, size=self._load_size,
-            interpolation=PIL.Image.BICUBIC)
-        img_A, param_crop = chainercv.transforms.random_crop(
-            img_A, size=self._fine_size, return_param=True)
-        if self._train:
-            # img_A, param_flip = chainercv.transforms.random_flip(
-            #     img_A, x_random=True, return_param=True)
-            pass
-        img_A = img_A.astype(np.float32) / 255  # ToTensor
-        img_A = (img_A - 0.5) / 0.5  # Normalize
-
-        img_B = img_B.transpose(2, 0, 1)
-        img_B = chainercv.transforms.resize(
-            img_B, size=self._load_size,
-            interpolation=PIL.Image.BICUBIC)
-        img_B = img_B[:, param_crop['y_slice'], param_crop['x_slice']]
-        if self._train:
-            # img_B = chainercv.transforms.flip(
-            #     img_B, x_flip=param_flip['x_flip'])
-            pass
-        img_B = img_B.astype(np.float32) / 255  # ToTensor
-        img_B = (img_B - 0.5) / 0.5  # Normalize
-
-        return img_A, img_B
+from chainer_bicyclegan.datasets import BicycleGANTransform
+from chainer_bicyclegan.models import D_NLayersMulti
+from chainer_bicyclegan.models import E_ResNet
+from chainer_bicyclegan.models import G_Unet_add_all
+from chainer_bicyclegan.training.extensions import BicycleGANEvaluator
+from chainer_bicyclegan.training.updaters import BicycleGANUpdater
 
 
 def train(dataset_train, dataset_test, gpu, suffix=''):

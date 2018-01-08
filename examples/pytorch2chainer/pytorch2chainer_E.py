@@ -21,7 +21,7 @@ from models.networks import E_ResNet
 from models.networks import get_non_linearity
 from models.networks import get_norm_layer
 
-import lib
+import chainer_bicyclegan
 
 
 def convert_E(nz, output_nc):
@@ -38,7 +38,7 @@ def convert_E(nz, output_nc):
     )
     E.load_state_dict(torch.load(E_model_file))
 
-    E_chainer = lib.models.E_ResNet(
+    E_chainer = chainer_bicyclegan.models.E_ResNet(
         input_nc=output_nc,
         output_nc=nz,
         ndf=64,
@@ -57,14 +57,14 @@ def convert_E(nz, output_nc):
             elif isinstance(l2, InstanceNormalization):
                 np.copyto(l2.avg_mean, l1.running_mean.numpy())
                 np.copyto(l2.avg_var, l1.running_var.numpy())
-            elif isinstance(l2, lib.models.BasicBlock):
+            elif isinstance(l2, chainer_bicyclegan.models.BasicBlock):
                 l2_list = l2.conv.functions
                 l1_list = l1.conv
                 copyto(l2_list, l1_list)
                 l2_list = l2.shortcut.functions
                 l1_list = l1.shortcut
                 copyto(l2_list, l1_list)
-            elif isinstance(l2, lib.models.Sequential):
+            elif isinstance(l2, chainer_bicyclegan.models.Sequential):
                 l2_list = l2.functions
                 l1_list = l1
                 copyto(l2_list, l1_list)

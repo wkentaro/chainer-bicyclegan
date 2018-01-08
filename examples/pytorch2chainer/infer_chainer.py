@@ -11,7 +11,8 @@ import fcn
 import numpy as np
 import skimage.io
 
-import lib
+from chainer_bicyclegan.models import E_ResNet
+from chainer_bicyclegan.models import G_Unet_add_all
 
 
 here = osp.dirname(osp.abspath(__file__))
@@ -56,7 +57,7 @@ cuda.get_device_from_id(gpu).use()
 nz = 8
 output_nc = 3
 
-G = lib.models.G_Unet_add_all(
+G = G_Unet_add_all(
     input_nc=1,
     output_nc=output_nc,
     nz=nz,
@@ -70,7 +71,7 @@ G = lib.models.G_Unet_add_all(
 chainer.serializers.load_npz(G_model_file, G)
 G.to_gpu()
 
-E = lib.models.E_ResNet(
+E = E_ResNet(
     input_nc=output_nc,
     output_nc=nz,
     ndf=64,

@@ -21,7 +21,7 @@ from models.networks import G_Unet_add_all
 from models.networks import get_non_linearity
 from models.networks import get_norm_layer
 
-import lib
+import chainer_bicyclegan
 
 
 def convert_G(nz, output_nc):
@@ -40,7 +40,7 @@ def convert_G(nz, output_nc):
     )
     G.load_state_dict(torch.load(G_model_file))
 
-    G_chainer = lib.models.G_Unet_add_all(
+    G_chainer = chainer_bicyclegan.models.G_Unet_add_all(
         input_nc=1,
         output_nc=output_nc,
         nz=nz,

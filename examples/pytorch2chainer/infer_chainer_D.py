@@ -10,7 +10,7 @@ import skimage.io
 
 import cv2  # NOQA
 
-import lib
+from chainer_bicyclegan.models import D_NLayersMulti
 
 
 here = osp.dirname(osp.abspath(__file__))
@@ -32,7 +32,7 @@ print('GPU id: %d' % gpu)
 print('D model: %s' % D_model_file)
 print('Input file: %s' % img_file)
 
-D = lib.models.D_NLayersMulti(
+D = D_NLayersMulti(
     input_nc=output_nc,
     ndf=64,
     n_layers=3,

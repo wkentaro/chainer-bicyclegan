@@ -18,7 +18,7 @@ sys.path.insert(0, pytorch_dir)
 from models.networks import D_NLayersMulti
 from models.networks import get_norm_layer
 
-import lib
+import chainer_bicyclegan
 
 
 def convert_D(D_model_file, out_file):
@@ -35,7 +35,7 @@ def convert_D(D_model_file, out_file):
     )
     D.load_state_dict(torch.load(D_model_file))
 
-    D_chainer = lib.models.D_NLayersMulti(
+    D_chainer = chainer_bicyclegan.models.D_NLayersMulti(
         input_nc=output_nc,
         ndf=64,
         n_layers=3,
@@ -53,14 +53,14 @@ def convert_D(D_model_file, out_file):
             elif isinstance(l2, InstanceNormalization):
                 np.copyto(l2.avg_mean, l1.running_mean.numpy())
                 np.copyto(l2.avg_var, l1.running_var.numpy())
-            elif isinstance(l2, lib.models.BasicBlock):
+            elif isinstance(l2, chainer_bicyclegan.models.BasicBlock):
                 l2_list = l2.conv.functions
                 l1_list = l1.conv
                 copyto(l2_list, l1_list)
                 l2_list = l2.shortcut.functions
                 l1_list = l1.shortcut
                 copyto(l2_list, l1_list)
-            elif isinstance(l2, lib.models.Sequential):
+            elif isinstance(l2, chainer_bicyclegan.models.Sequential):
                 l2_list = l2.functions
                 l1_list = l1
                 copyto(l2_list, l1_list)
