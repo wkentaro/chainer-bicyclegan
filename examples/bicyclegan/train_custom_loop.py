@@ -15,7 +15,6 @@ import chainer.functions as F
 import chainer.optimizers as O
 import chainer.serializers as S
 import chainercv
-# import cupy as cp
 import numpy as np
 import PIL.Image
 import skimage.io
