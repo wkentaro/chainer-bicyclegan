@@ -1,1 +1,6 @@
 chainer
+chainercv
+chainer-cyclegan
+numpy
+Pillow
+scikit-image
