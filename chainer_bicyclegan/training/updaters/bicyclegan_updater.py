@@ -109,19 +109,23 @@ class BicycleGANUpdater(training.StandardUpdater):
         D2 = optimizer_D2.target
 
         batch = next(self.get_iterator('main'))
+        batch_size = len(batch)
 
-        if len(batch) != 2:
-            return
+        if batch_size % 2 != 0:
+            raise ValueError('Batch size must be even.')
 
         img_A, img_B = zip(*batch)
         img_A = np.asarray(img_A)[:, 0:1, :, :]
         img_B = np.asarray(img_B)
 
-        assert len(img_A) == len(img_B) == 2
-        real_A_encoded = Variable(self.converter(img_A[0:1], self.device))
-        real_A_random = Variable(self.converter(img_A[1:2], self.device))
-        real_B_encoded = Variable(self.converter(img_B[0:1], self.device))
-        real_B_random = Variable(self.converter(img_B[1:2], self.device))
+        real_A_encoded = Variable(
+            self.converter(img_A[:batch_size // 2], self.device))
+        real_A_random = Variable(
+            self.converter(img_A[batch_size // 2:], self.device))
+        real_B_encoded = Variable(
+            self.converter(img_B[:batch_size // 2], self.device))
+        real_B_random = Variable(
+            self.converter(img_B[batch_size // 2:], self.device))
 
         # update D
         # -----------------------------------------------------------------

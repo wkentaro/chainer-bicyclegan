@@ -26,9 +26,7 @@ from chainer_bicyclegan.training.extensions import BicycleGANEvaluator
 from chainer_bicyclegan.training.updaters import BicycleGANUpdater
 
 
-def train(dataset_train, dataset_test, gpu, suffix=''):
-    batch_size = 2
-
+def train(dataset_train, dataset_test, gpu, batch_size, suffix=''):
     np.random.seed(0)
     if gpu >= 0:
         chainer.cuda.get_device_from_id(gpu).use()
@@ -141,7 +139,8 @@ def train(dataset_train, dataset_test, gpu, suffix=''):
         target=D2, filename='D2_{.updater.epoch:08}.npz'),
         trigger=(1, 'epoch'))
 
-    interval_print = 40 // batch_size
+    interval_print = max(40 // batch_size, 1)
+    interval_plot = max(100 // batch_size, 1)
 
     trainer.extend(
         extensions.LogReport(trigger=(interval_print, 'iteration')))
@@ -150,15 +149,15 @@ def train(dataset_train, dataset_test, gpu, suffix=''):
     trainer.extend(extensions.PlotReport(
         y_keys=['loss_D'],
         x_key='iteration', file_name='loss_D.png',
-        trigger=(100 // batch_size, 'iteration')))
+        trigger=(interval_plot, 'iteration')))
     trainer.extend(extensions.PlotReport(
         y_keys=['loss_G', 'loss_G_GAN', 'loss_G_GAN2', 'loss_G_L1', 'loss_kl'],
         x_key='iteration', file_name='loss_G.png',
-        trigger=(100 // batch_size, 'iteration')))
+        trigger=(interval_plot, 'iteration')))
     trainer.extend(extensions.PlotReport(
         y_keys=['loss_z_L1'],
         x_key='iteration', file_name='loss_z_L1.png',
-        trigger=(100 // batch_size, 'iteration')))
+        trigger=(interval_plot, 'iteration')))
 
     trainer.extend(extensions.PrintReport([
         'epoch', 'iteration', 'elapsed_time',
@@ -195,6 +194,8 @@ if __name__ == '__main__':
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-g', '--gpu', type=int, required=True,
                         help='GPU id.')
+    parser.add_argument('-b', '--batch-size', type=int, default=2,
+                        help='Batch size.')
     args = parser.parse_args()
 
     dataset_train = TransformDataset(
@@ -203,4 +204,5 @@ if __name__ == '__main__':
     dataset_test = TransformDataset(
         BerkeleyPix2PixDataset('edges2shoes', 'val'),
         BicycleGANTransform(train=False))
-    train(dataset_train, dataset_test, args.gpu, suffix='_edges2shoes')
+    train(dataset_train, dataset_test, args.gpu, args.batch_size,
+          suffix='_edges2shoes')
