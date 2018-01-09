@@ -14,10 +14,9 @@ from chainer.datasets import TransformDataset
 import chainer.optimizers as O
 from chainer import training
 from chainer.training import extensions
+from chainer_cyclegan.datasets import BerkeleyPix2PixDataset
 import cupy as cp
 import numpy as np
-
-from chainer_cyclegan.datasets import BerkeleyPix2PixDataset
 
 from chainer_bicyclegan.datasets import BicycleGANTransform
 from chainer_bicyclegan.models import D_NLayersMulti

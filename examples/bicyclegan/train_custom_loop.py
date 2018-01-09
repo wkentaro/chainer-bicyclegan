@@ -13,10 +13,9 @@ from chainer import cuda
 import chainer.functions as F
 import chainer.optimizers as O
 import chainer.serializers as S
+from chainer_cyclegan.datasets import BerkeleyPix2PixDataset
 import numpy as np
 import skimage.io
-
-from chainer_cyclegan.datasets import BerkeleyPix2PixDataset
 
 from chainer_bicyclegan.datasets import BicycleGANTransform
 from chainer_bicyclegan.models import D_NLayersMulti
