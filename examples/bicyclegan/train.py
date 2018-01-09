@@ -192,6 +192,9 @@ def train(dataset_train, dataset_test, gpu, batch_size, suffix=''):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('dataset',
+                        choices=BerkeleyPix2PixDataset.available_datasets,
+                        help='Dataset.')
     parser.add_argument('-g', '--gpu', type=int, required=True,
                         help='GPU id.')
     parser.add_argument('-b', '--batch-size', type=int, default=2,
@@ -199,10 +202,10 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     dataset_train = TransformDataset(
-        BerkeleyPix2PixDataset('edges2shoes', 'train'),
+        BerkeleyPix2PixDataset(args.dataset, 'train'),
         BicycleGANTransform())
     dataset_test = TransformDataset(
-        BerkeleyPix2PixDataset('edges2shoes', 'val'),
+        BerkeleyPix2PixDataset(args.dataset, 'val'),
         BicycleGANTransform(train=False))
     train(dataset_train, dataset_test, args.gpu, args.batch_size,
-          suffix='_edges2shoes')
+          suffix='_' + args.dataset)
