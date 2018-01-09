@@ -81,10 +81,9 @@ class BicycleGANEvaluator(training.Extension):
                 with chainer.using_config('enable_backprop', False):
                     y = G(real_A, z)
 
-                for j in range(len(y.array)):
-                    fake_B = cuda.to_cpu(y.array[j].transpose(1, 2, 0))
-                    fake_B = img_as_ubyte(fake_B)
-                    row.append(fake_B)
+                fake_B = cuda.to_cpu(y.array[0].transpose(1, 2, 0))
+                fake_B = img_as_ubyte(fake_B)
+                row.append(fake_B)
 
             row = fcn.utils.get_tile_image(row, tile_shape=(1, len(row)))
             rows.append(row)
