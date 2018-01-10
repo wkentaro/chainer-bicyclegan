@@ -66,6 +66,8 @@ class BicycleGANEvaluator(training.Extension):
             n_rows, n_cols = self._shape
 
             nz = 8
+
+            np.random.seed(0)
             z_samples = np.random.normal(
                 0, 1, (n_cols - 1, nz)).astype(np.float32)
 
