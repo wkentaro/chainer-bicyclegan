@@ -12,7 +12,7 @@ class G_Unet_add_all(chainer.Chain):
 
     def __init__(self, input_nc, output_nc, nz, num_downs, ngf=64,
                  norm_layer=None, nl_layer=None, upsample='basic',
-                 use_dropout=False):
+                 use_dropout=True):
         super(G_Unet_add_all, self).__init__()
         unet_block = UnetBlock_with_z(
             ngf * 8, ngf * 8, ngf * 8, nz, None,
@@ -51,7 +51,7 @@ class UnetBlock_with_z(chainer.Chain):
 
     def __init__(self, input_nc, outer_nc, inner_nc, nz=0,
                  submodule=None, outermost=False, innermost=False,
-                 norm_layer=None, nl_layer=None, use_dropout=False,
+                 norm_layer=None, nl_layer=None, use_dropout=True,
                  upsample='basic', padding_type='zero'):
         super(UnetBlock_with_z, self).__init__()
         assert padding_type == 'zero'

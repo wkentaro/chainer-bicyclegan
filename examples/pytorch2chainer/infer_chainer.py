@@ -65,7 +65,7 @@ G = G_Unet_add_all(
     ngf=64,
     norm_layer='instance',
     nl_layer='relu',
-    use_dropout=False,
+    use_dropout=True,
     upsample='basic',
 )
 chainer.serializers.load_npz(G_model_file, G)

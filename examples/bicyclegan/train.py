@@ -53,7 +53,7 @@ def train(dataset_train, dataset_test, gpu, batch_size, suffix=''):
         ngf=64,
         norm_layer='instance',
         nl_layer='relu',
-        use_dropout=False,
+        use_dropout=True,
         upsample='basic',
     )
     D = D_NLayersMulti(

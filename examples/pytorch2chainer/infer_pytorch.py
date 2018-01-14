@@ -67,7 +67,7 @@ G = G_Unet_add_all(
     ngf=64,
     norm_layer=get_norm_layer('instance'),
     nl_layer=get_non_linearity('relu'),
-    use_dropout=False,
+    use_dropout=True,
     gpu_ids=[gpu],
     upsample='basic',
 )
