@@ -73,14 +73,16 @@ class BicycleGANEvaluator(training.Extension):
 
             for i in range(0, n_cols):
                 if i == 0:
-                    with chainer.using_config('enable_backprop', False):
+                    with chainer.using_config('enable_backprop', False), \
+                            chainer.using_config('train', False):
                         mu, logvar = E(real_B)
                     z = get_z(mu, logvar)
                 else:
                     z = cuda.to_gpu(z_samples[i - 1][None])
                     z = chainer.Variable(z)
 
-                with chainer.using_config('enable_backprop', False):
+                with chainer.using_config('enable_backprop', False), \
+                       chainer.using_config('train', False):
                     y = G(real_A, z)
 
                 fake_B = cuda.to_cpu(y.array[0].transpose(1, 2, 0))
