@@ -82,7 +82,7 @@ class BicycleGANEvaluator(training.Extension):
                     z = chainer.Variable(z)
 
                 with chainer.using_config('enable_backprop', False), \
-                       chainer.using_config('train', False):
+                        chainer.using_config('train', False):
                     y = G(real_A, z)
 
                 fake_B = cuda.to_cpu(y.array[0].transpose(1, 2, 0))
