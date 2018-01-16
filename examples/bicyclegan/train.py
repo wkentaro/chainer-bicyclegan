@@ -22,8 +22,8 @@ from chainer_bicyclegan.datasets import BicycleGANTransform
 from chainer_bicyclegan.models import D_NLayersMulti
 from chainer_bicyclegan.models import E_ResNet
 from chainer_bicyclegan.models import G_Unet_add_all
-from chainer_bicyclegan.training.extensions import BicycleGANEvaluator
-from chainer_bicyclegan.training.updaters import BicycleGANUpdater
+from chainer_bicyclegan.extensions import BicycleGANEvaluator
+from chainer_bicyclegan.updaters import BicycleGANUpdater
 
 
 def train(dataset_train, dataset_test, gpu, batch_size, suffix=''):
