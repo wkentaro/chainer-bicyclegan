@@ -19,10 +19,10 @@ import cupy as cp
 import numpy as np
 
 from chainer_bicyclegan.datasets import BicycleGANTransform
+from chainer_bicyclegan.extensions import BicycleGANEvaluator
 from chainer_bicyclegan.models import D_NLayersMulti
 from chainer_bicyclegan.models import E_ResNet
 from chainer_bicyclegan.models import G_Unet_add_all
-from chainer_bicyclegan.extensions import BicycleGANEvaluator
 from chainer_bicyclegan.updaters import BicycleGANUpdater
 
 
