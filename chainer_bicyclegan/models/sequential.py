@@ -15,9 +15,5 @@ class Sequential(chainer.ChainList):
     def __call__(self, x):
         h = x
         for func in self.functions:
-            if isinstance(func, InstanceNormalization):
-                with chainer.using_config('train', True):
-                    h = func(h)
-            else:
-                h = func(h)
+            h = func(h)
         return h
