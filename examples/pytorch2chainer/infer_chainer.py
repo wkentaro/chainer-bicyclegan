@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import argparse
+import os
 import os.path as osp
 
 import chainer
@@ -129,5 +130,9 @@ for i in range(1 + n_samples):
     viz.append(fake_B)
 viz = fcn.utils.get_tile_image(viz)
 
+try:
+    os.makedirs(osp.dirname(out_file))
+except OSError:
+    pass
 cv2.imwrite(out_file, viz[:, :, ::-1])
 print('Saved file: %s' % out_file)
