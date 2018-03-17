@@ -20,6 +20,24 @@ pip install .
 ```bash
 cd examples/bicyclegan
 
-# ./train.py --gpu <gpu_id>
-./train.py --gpu 0
+# ./train.py <dataset> --gpu <gpu_id>
+./train.py edges2shoes --gpu 0
 ```
+
+## Results
+
+It shows that the BicycleGAN output has more variety with smaller batchsize.
+
+### edges2shoes
+
+- batchsize=2,epoch=60 (left)
+- batchsize=60,epoch=60 (right)
+
+<img src=".readme/edges2shoes_batchsize2_epoch60.jpg" width="48%" /> <img src=".readme/edges2shoes_batchsize60_epoch60.jpg" width="48%" />
+
+### edges2handbags
+
+- batchsize=2,epoch=5 (left)
+- batchsize=60,epoch=15 (right)
+
+<img src=".readme/edges2handbags_batchsize2_epoch5.jpg" width="48%" /> <img src=".readme/edges2handbags_batchsize60_epoch15.jpg" width="48%" />
