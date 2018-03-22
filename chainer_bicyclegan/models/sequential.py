@@ -1,7 +1,5 @@
 import chainer
 
-from chainer_cyclegan.links import InstanceNormalization
-
 
 class Sequential(chainer.ChainList):
 
